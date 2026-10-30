@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+/* Tailwind に「どのファイルのクラスを使うか」を教える */
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../config/tour.php';
+
+/* アプリの色とフォント(レッスンノートのテーマ) */
+@theme {
+    --font-sans: 'Zen Kaku Gothic New', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --color-ink: #1f2a37;
+    --color-paper: #faf8f4;
+
+    --color-leaf-50: #eef7f1;
+    --color-leaf-100: #d6ecdd;
+    --color-leaf-500: #2f8a57;
+    --color-leaf-600: #24704a;
+    --color-leaf-700: #1c5a3b;
+
+    --color-clay-50: #fdf1ec;
+    --color-clay-500: #c85a3a;
+    --color-clay-600: #a84a2f;
+}
+
+/*
+ * Tailwind 4 では枠線の色やボタンのカーソルの初期値が変わったので、
+ * 以前(Tailwind 3)と同じ見た目になるようにそろえる
+ */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-stone-200, currentColor);
+    }
+
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--color-stone-400);
+    }
+}
