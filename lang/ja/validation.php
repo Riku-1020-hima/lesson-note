@@ -70,5 +70,6 @@ return [
         'type' => '用件',
         'extra' => '追加の指示',
         'month' => '月',
+        'makeup_deadline_days' => '振替の期限',
     ],
 ];

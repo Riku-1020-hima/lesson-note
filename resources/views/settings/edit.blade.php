@@ -80,6 +80,18 @@
         }
     </script>
 
+    <section data-tour="set-makeup" class="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+        <h2 class="font-bold">振替のルール</h2>
+        <x-field label="振替の期限" name="makeup_deadline_days" hint="欠席した日から何日以内に振替するかを決めます。空欄なら期限なしです。期限が7日以内に迫ると、ホームと振替の一覧でお知らせします">
+            <div class="flex items-center gap-2">
+                <span class="text-sm whitespace-nowrap">欠席日から</span>
+                <input type="number" name="makeup_deadline_days" value="{{ old('makeup_deadline_days', $user->makeup_deadline_days) }}" min="1" max="365" placeholder="例:60"
+                       class="w-28 rounded-lg border border-stone-300 px-3 py-2">
+                <span class="text-sm whitespace-nowrap">日以内</span>
+            </div>
+        </x-field>
+    </section>
+
     <section data-tour="set-login" class="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <h2 class="font-bold">ログイン情報</h2>
         <x-field label="メールアドレス" name="email">

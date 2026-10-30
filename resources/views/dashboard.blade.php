@@ -57,6 +57,9 @@
     <div data-tour="stat-makeups" class="bg-white rounded-xl border border-stone-200 p-4">
         <p class="text-xs text-stone-500">振替待ち</p>
         <p class="text-2xl font-bold mt-1">{{ $pendingMakeups->count() }}<span class="text-sm font-normal text-stone-500 ml-1">件</span></p>
+        @if ($urgentMakeups->isNotEmpty())
+            <p class="text-xs font-bold text-clay-600 mt-1">うち期限が近い・切れた {{ $urgentMakeups->count() }}件</p>
+        @endif
     </div>
 </div>
 
@@ -109,9 +112,12 @@
                 <a href="{{ route('makeups.create') }}" class="text-sm text-leaf-600">+ 欠席を登録</a>
             </div>
             @forelse ($pendingMakeups as $m)
-                <a href="{{ route('makeups.edit', $m) }}" class="flex justify-between text-sm py-1.5 hover:underline">
+                <a href="{{ route('makeups.edit', $m) }}" class="flex justify-between items-center gap-2 text-sm py-1.5 hover:underline">
                     <span>{{ $m->student->name }}</span>
-                    <span class="text-stone-500">{{ $m->absent_date->format('n/j') }} 欠席</span>
+                    <span class="text-right">
+                        <span class="text-stone-500">{{ $m->absent_date->format('n/j') }} 欠席</span>
+                        <x-deadline-badge :info="$m->deadlineInfo($deadlineDays)" class="ml-1" />
+                    </span>
                 </a>
             @empty
                 <p class="text-sm text-stone-500">振替待ちはありません。</p>

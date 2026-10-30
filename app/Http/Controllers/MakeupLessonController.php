@@ -34,7 +34,9 @@ class MakeupLessonController extends Controller
             ->orderBy('absent_date')
             ->get();
 
-        return view('makeups.index', compact('makeups', 'status'));
+        $deadlineDays = $request->user()->makeup_deadline_days;
+
+        return view('makeups.index', compact('makeups', 'status', 'deadlineDays'));
     }
 
     public function create(Request $request): View
@@ -67,9 +69,14 @@ class MakeupLessonController extends Controller
         $courses = $request->user()->courses()->orderBy('weekday')->orderBy('start_time')->get();
         $slots = collect();
         $start = now()->startOfDay();
+        $deadlineDays = $request->user()->makeup_deadline_days;
+        $deadline = $makeup->deadline($deadlineDays);
 
         for ($i = 0; $i < 28; $i++) {
             $date = $start->copy()->addDays($i);
+            if ($deadline && $date->gt($deadline)) {
+                break; // 期限より後の枠は出さない
+            }
             foreach ($courses->filter(fn ($c) => $c->meetsOn($date)) as $course) {
                 $count = $course->attendeeCountOn($date);
                 $slots->push([
@@ -81,7 +88,7 @@ class MakeupLessonController extends Controller
             }
         }
 
-        return view('makeups.edit', compact('makeup', 'slots'));
+        return view('makeups.edit', compact('makeup', 'slots', 'deadline', 'deadlineDays'));
     }
 
     public function update(Request $request, MakeupLesson $makeup): RedirectResponse
@@ -103,6 +110,13 @@ class MakeupLessonController extends Controller
 
         $course = Course::findOrFail($data['makeup_course_id']);
         $date = Carbon::parse($data['makeup_date']);
+
+        $deadline = $makeup->deadline($request->user()->makeup_deadline_days);
+        if ($deadline && $date->gt($deadline)) {
+            throw ValidationException::withMessages([
+                'makeup_date' => '振替の期限('.$deadline->format('n月j日').')を過ぎた日は選べません。期限は「設定」で変えられます。',
+            ]);
+        }
 
         if (! $course->hasSeatOn($date)) {
             throw ValidationException::withMessages([

@@ -31,7 +31,7 @@
 </p>
 
 <div class="bg-white rounded-xl border border-stone-200 overflow-x-auto">
-    <table class="w-full text-sm">
+    <table class="rtable w-full text-sm">
         <thead class="bg-stone-50 text-stone-500 text-left">
             <tr>
                 <th class="px-4 py-2.5 font-medium">名前</th>
@@ -44,17 +44,17 @@
         <tbody>
         @forelse ($students as $s)
             <tr class="border-t border-stone-100">
-                <td class="px-4 py-3">
+                <td class="rt-main px-4 py-3">
                     <button type="button" @if ($loop->first) data-tour="student-name" @endif onclick="toggleDetail({{ $s->id }}, this)" aria-expanded="false" aria-controls="detail-{{ $s->id }}"
                             class="text-left font-medium hover:underline flex items-center gap-1.5">
                         <span class="chev inline-block text-stone-400 text-xs transition-transform">▶</span>{{ $s->name }}
                     </button>
                     @if ($s->kana)<div class="text-xs text-stone-500 ml-4">{{ $s->kana }}</div>@endif
                 </td>
-                <td class="px-4 py-3">{{ $s->course?->name ?? '—' }}</td>
-                <td class="px-4 py-3">{{ $s->guardian_name ?? '—' }}</td>
-                <td class="px-4 py-3 text-right">{{ number_format($s->fee) }}円</td>
-                <td class="px-4 py-3">
+                <td data-label="コース" class="px-4 py-3">{{ $s->course?->name ?? '—' }}</td>
+                <td data-label="保護者" class="px-4 py-3">{{ $s->guardian_name ?? '—' }}</td>
+                <td data-label="月謝" class="px-4 py-3 text-right">{{ number_format($s->fee) }}円</td>
+                <td data-label="状態" class="px-4 py-3">
                     <form method="POST" action="{{ route('students.status', $s) }}" @if ($loop->first) data-tour="student-status" @endif>
                         @csrf @method('PATCH')
                         <select name="status" onchange="this.form.submit()" aria-label="{{ $s->name }}さんの状態"

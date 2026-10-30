@@ -13,7 +13,7 @@ class User extends Authenticatable
 
     public const DEFAULT_APP_NAME = 'レッスンノート';
 
-    protected $fillable = ['name', 'app_name', 'logo_path', 'email', 'password'];
+    protected $fillable = ['name', 'app_name', 'logo_path', 'makeup_deadline_days', 'email', 'password'];
 
     /** アイコン画像のURL(未設定なら null) */
     public function getLogoUrlAttribute(): ?string
@@ -35,6 +35,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'makeup_deadline_days' => 'integer',
         ];
     }
 

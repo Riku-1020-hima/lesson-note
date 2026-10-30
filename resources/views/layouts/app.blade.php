@@ -39,11 +39,11 @@
                 <x-app-logo />
                 {{ $appName }}
             </a>
-            <div class="flex items-center gap-4 text-sm">
+            <div class="flex items-center gap-3 sm:gap-4 text-sm">
                 <span class="hidden sm:inline text-stone-500">{{ auth()->user()->name }}</span>
                 @if (! empty($tourSteps))
                     <button type="button" data-tour="help" onclick="startTour(true)" class="inline-flex items-center gap-1 text-stone-500 hover:text-ink">
-                        <span class="inline-flex w-5 h-5 rounded-full border border-current items-center justify-center text-xs font-bold">?</span>使い方
+                        <span class="inline-flex w-5 h-5 rounded-full border border-current items-center justify-center text-xs font-bold">?</span><span class="hidden sm:inline">使い方</span>
                     </button>
                 @endif
                 <a href="{{ route('settings.edit') }}" class="{{ request()->routeIs('settings.*') ? 'text-leaf-700 font-bold' : 'text-stone-500 hover:text-ink' }}">設定</a>

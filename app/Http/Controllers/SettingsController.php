@@ -29,6 +29,7 @@ class SettingsController extends Controller
             'password' => ['nullable', 'confirmed', Password::min(8)],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
+            'makeup_deadline_days' => ['nullable', 'integer', 'min:1', 'max:365'],
         ], [
             'logo.image' => '画像ファイルを選んでください。',
             'logo.mimes' => 'JPG・PNG・WebP・GIF の画像を選んでください。',
@@ -40,6 +41,7 @@ class SettingsController extends Controller
         $user->fill([
             'name' => $data['name'],
             'app_name' => $data['app_name'] ?? null,
+            'makeup_deadline_days' => $data['makeup_deadline_days'] ?? null,
             'email' => $data['email'],
         ]);
 

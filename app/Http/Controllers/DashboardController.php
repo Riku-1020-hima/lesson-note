@@ -32,6 +32,10 @@ class DashboardController extends Controller
 
         $activeCount = $user->students()->where('status', 'active')->count();
 
+        // 振替の期限が近い・切れたもの
+        $deadlineDays = $user->makeup_deadline_days;
+        $urgentMakeups = $pendingMakeups->filter(fn ($m) => in_array($m->deadlineInfo($deadlineDays)['level'] ?? null, ['soon', 'expired'], true));
+
         // はじめにやること(全部終わったら表示しない)
         $setup = [
             ['done' => $user->courses()->exists(), 'title' => 'コースを追加する', 'text' => '授業の曜日・時間・定員・月謝を登録します', 'url' => route('courses.create')],
@@ -42,6 +46,6 @@ class DashboardController extends Controller
         ];
         $setupRequiredDone = collect($setup)->reject(fn ($s) => $s['optional'] ?? false)->every('done');
 
-        return view('dashboard', compact('summary', 'unpaid', 'todayCourses', 'pendingMakeups', 'activeCount', 'month', 'setup', 'setupRequiredDone'));
+        return view('dashboard', compact('summary', 'unpaid', 'todayCourses', 'pendingMakeups', 'activeCount', 'month', 'setup', 'setupRequiredDone', 'deadlineDays', 'urgentMakeups'));
     }
 }

@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('students', StudentController::class);
 
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/export', [PaymentController::class, 'export'])->name('payments.export');
     Route::post('/payments/{payment}/toggle', [PaymentController::class, 'toggle'])->name('payments.toggle');
 
     Route::resource('makeups', MakeupLessonController::class)->only(['index', 'create', 'store', 'edit', 'update']);

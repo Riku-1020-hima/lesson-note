@@ -328,6 +328,81 @@ class LessonNoteTest extends TestCase
             ->assertSessionHasErrors(['name' => '名前を入力してください。']);
     }
 
+    public function test_payments_can_be_exported_as_csv(): void
+    {
+        $u = $this->owner();
+        $c = $this->course($u);
+        $s = $u->students()->create(['name' => '山田 花子', 'kana' => 'やまだ はなこ', 'course_id' => $c->id, 'status' => 'active', 'enrolled_on' => '2026-01-01']);
+        TuitionPayment::create(['student_id' => $s->id, 'year_month' => '2026-09', 'amount' => 7000, 'paid_at' => '2026-09-05 10:00:00', 'method' => '振込']);
+        TuitionPayment::create(['student_id' => $s->id, 'year_month' => '2026-10', 'amount' => 7000]);
+
+        // 他の教室の記録は出ない
+        $other = $this->owner();
+        $o = $other->students()->create(['name' => 'よその子', 'status' => 'active']);
+        TuitionPayment::create(['student_id' => $o->id, 'year_month' => '2026-10', 'amount' => 9999]);
+
+        $this->actingAs($u);
+        $res = $this->get('/payments/export?month=2026-10')->assertOk();
+        $csv = $res->streamedContent();
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $this->assertStringContainsString('年月,生徒名,ふりがな,コース,金額,状態,入金日,支払い方法', $csv);
+        $this->assertStringContainsString('2026-10,"山田 花子","やまだ はなこ",月曜クラス,7000,未納', $csv);
+        $this->assertStringNotContainsString('2026-09', $csv);
+        $this->assertStringNotContainsString('よその子', $csv);
+        $this->assertStringContainsString('attachment', $res->headers->get('Content-Disposition'));
+
+        $year = $this->get('/payments/export?year=2026')->streamedContent();
+        $this->assertStringContainsString('2026-09,"山田 花子","やまだ はなこ",月曜クラス,7000,入金済,2026-09-05,振込', $year);
+        $this->assertStringContainsString('2026-10,', $year);
+
+        $this->get('/payments')->assertSee('CSVで書き出す');
+    }
+
+    public function test_makeup_deadline_warns_and_limits_booking(): void
+    {
+        $u = $this->owner();
+        $sat = $this->course($u, ['name' => '土曜', 'weekdays' => [6], 'capacity' => 5]);
+        $s = $u->students()->create(['name' => '振替の子', 'status' => 'active']);
+        $this->actingAs($u);
+
+        // 期限なし:バッジは出ない
+        $m = MakeupLesson::create(['student_id' => $s->id, 'absent_date' => now()->subDays(55), 'status' => 'pending']);
+        $this->get('/makeups')->assertDontSee('期限');
+
+        // 設定で60日にすると、残り5日 →「あと5日」
+        $this->put('/settings', ['name' => $u->name, 'email' => $u->email, 'makeup_deadline_days' => 60])->assertSessionHasNoErrors();
+        $this->assertSame(60, $u->fresh()->makeup_deadline_days);
+        $this->get('/makeups')->assertSee('あと5日');
+        $this->get('/')->assertSee('うち期限が近い・切れた 1件');
+
+        // 期限より後の日は予約できない
+        $farSaturday = now()->addDays(6)->next(6);
+        $this->put("/makeups/{$m->id}", ['makeup_course_id' => $sat->id, 'makeup_date' => $farSaturday->toDateString()])
+            ->assertSessionHasErrors('makeup_date');
+
+        // 期限切れ
+        $m->update(['absent_date' => now()->subDays(61)]);
+        $this->get('/makeups')->assertSee('期限切れ');
+        $this->get("/makeups/{$m->id}/edit")->assertSee('期限を過ぎているため');
+
+        // 予約済み・完了になったものには期限を出さない
+        $m->update(['status' => 'done']);
+        $this->get('/makeups?status=all')->assertDontSee('期限切れ');
+    }
+
+    public function test_tables_have_phone_layout_labels(): void
+    {
+        $u = $this->owner();
+        $c = $this->course($u);
+        $u->students()->create(['name' => 'A', 'course_id' => $c->id, 'status' => 'active']);
+        $this->actingAs($u);
+
+        foreach (['/students', '/courses', '/payments', '/makeups'] as $url) {
+            $this->get($url)->assertSee('rtable', false);
+        }
+        $this->get('/payments')->assertSee('data-label="金額"', false);
+    }
+
     public function test_student_fee_falls_back_to_course_fee(): void
     {
         $u = $this->owner();

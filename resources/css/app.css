@@ -25,6 +25,73 @@
 }
 
 /*
+ * スマホ向けの表(class="rtable")
+ * 画面が狭いときは、表の1行を1枚のカードにして縦に並べる。
+ * ・見出しの代わりに、各セルの data-label を左に小さく出す
+ * ・rt-main … カードの見出し(名前など)  ・rt-actions … ボタン類
+ */
+@media (width < 40rem) {
+    .rtable thead {
+        display: none;
+    }
+
+    .rtable,
+    .rtable tbody,
+    .rtable tr:not(.hidden),
+    .rtable td {
+        display: block;
+        width: 100%;
+    }
+
+    .rtable tr:not(.hidden) {
+        padding: 0.75rem 1rem;
+    }
+
+    .rtable td {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.2rem 0 !important;
+        text-align: left !important;
+        white-space: normal !important;
+    }
+
+    .rtable td[data-label]::before {
+        content: attr(data-label);
+        flex: 0 0 4.5rem;
+        padding-top: 0.15rem;
+        font-size: 0.75rem;
+        color: var(--color-stone-500);
+    }
+
+    .rtable td > :is(div, form) {
+        flex: 1;
+    }
+
+    .rtable td.rt-main {
+        display: block;
+        font-size: 1rem;
+        padding-bottom: 0.35rem !important;
+    }
+
+    .rtable td.rt-actions {
+        flex-wrap: wrap;
+        padding-top: 0.6rem !important;
+    }
+
+    /* 指で押しやすい大きさにする */
+    .rtable td.rt-actions :is(button, a, select) {
+        min-height: 2.25rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .rtable td[colspan] {
+        display: block;
+    }
+}
+
+/*
  * Tailwind 4 では枠線の色やボタンのカーソルの初期値が変わったので、
  * 以前(Tailwind 3)と同じ見た目になるようにそろえる
  */

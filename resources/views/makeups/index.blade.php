@@ -13,7 +13,7 @@
 </div>
 
 <div data-tour="makeup-list" class="bg-white rounded-xl border border-stone-200 overflow-x-auto">
-    <table class="w-full text-sm">
+    <table class="rtable w-full text-sm">
         <thead class="bg-stone-50 text-stone-500 text-left">
             <tr>
                 <th class="px-4 py-2.5 font-medium">生徒</th>
@@ -25,21 +25,25 @@
         </thead>
         <tbody>
         @forelse ($makeups as $m)
-            <tr class="border-t border-stone-100">
-                <td class="px-4 py-3"><a href="{{ route('students.show', $m->student) }}" class="font-medium hover:underline">{{ $m->student->name }}</a>
+            @php $info = $m->deadlineInfo($deadlineDays); @endphp
+            <tr class="border-t border-stone-100 {{ ($info['level'] ?? null) === 'expired' ? 'bg-clay-50/60' : '' }}">
+                <td class="rt-main px-4 py-3"><a href="{{ route('students.show', $m->student) }}" class="font-medium hover:underline">{{ $m->student->name }}</a>
                     <div class="text-xs text-stone-500">{{ $m->student->course?->name }}</div></td>
-                <td class="px-4 py-3">{{ $m->absent_date->format('n/j') }}<div class="text-xs text-stone-500">{{ $m->reason }}</div></td>
-                <td class="px-4 py-3">
+                <td data-label="欠席日" class="px-4 py-3">
+                    <div>{{ $m->absent_date->format('n/j') }} <span class="text-xs text-stone-500">{{ $m->reason }}</span></div>
+                    <x-deadline-badge :info="$info" class="mt-1" />
+                </td>
+                <td data-label="振替先" class="px-4 py-3">
                     @if ($m->makeup_date)
                         {{ $m->makeup_date->format('n/j') }}({{ \App\Models\Course::WEEKDAYS[$m->makeup_date->dayOfWeek] }}) {{ $m->makeupCourse?->name }}
                     @else
                         <span class="text-stone-400">未定</span>
                     @endif
                 </td>
-                <td class="px-4 py-3">
+                <td data-label="状態" class="px-4 py-3">
                     <span class="text-xs rounded-full px-2 py-0.5 {{ ['pending' => 'bg-clay-50 text-clay-600', 'booked' => 'bg-leaf-50 text-leaf-700'][$m->status] ?? 'bg-stone-100 text-stone-500' }}">{{ $m->status_label }}</span>
                 </td>
-                <td class="px-4 py-3 text-right whitespace-nowrap">
+                <td class="rt-actions px-4 py-3 text-right whitespace-nowrap">
                     @if (in_array($m->status, ['pending', 'booked']))
                         <a href="{{ route('makeups.edit', $m) }}" class="text-leaf-600 mr-2">{{ $m->status === 'pending' ? '振替日を選ぶ' : '変更' }}</a>
                         @if ($m->status === 'booked')

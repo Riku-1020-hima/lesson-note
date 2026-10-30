@@ -8,7 +8,16 @@
     <div class="mb-4 rounded-lg bg-clay-50 border border-clay-500/30 text-clay-600 px-4 py-3 text-sm">{{ $message }}</div>
 @enderror
 
-<p class="text-sm mb-3">今日から4週間の枠です。空きのある枠をクリックすると予約されます。</p>
+@if ($deadline)
+    @php $info = $makeup->deadlineInfo($deadlineDays); @endphp
+    <p class="text-sm mb-3">振替の期限は <b>{{ $deadline->format('n月j日') }}</b> です(欠席日から{{ $deadlineDays }}日)。<x-deadline-badge :info="$info" class="ml-1" /><br>
+        期限までの枠(最大4週間)を出しています。空きのある枠をクリックすると予約されます。</p>
+    @if (($info['level'] ?? null) === 'expired')
+        <div class="mb-4 rounded-lg bg-clay-50 border border-clay-500/30 text-clay-600 px-4 py-3 text-sm">期限を過ぎているため、選べる枠がありません。振替をしない場合は下の「振替を取り消す」を、特別に振替する場合は「設定」で期限を延ばしてください。</div>
+    @endif
+@else
+    <p class="text-sm mb-3">今日から4週間の枠です。空きのある枠をクリックすると予約されます。</p>
+@endif
 
 @php $byDate = $slots->groupBy(fn ($s) => $s['date']->toDateString()); @endphp
 
@@ -31,7 +40,15 @@
             @endforeach
         </div>
     @empty
-        <p class="text-sm text-stone-500">コースが登録されていません。先にコースを追加してください。</p>
+        <p class="text-sm text-stone-500">
+            @if (! auth()->user()->courses()->exists())
+                コースが登録されていません。先にコースを追加してください。
+            @elseif ($deadline)
+                期限までに選べる枠がありません。
+            @else
+                4週間以内に授業のある日がありません。
+            @endif
+        </p>
     @endforelse
 </div>
 
