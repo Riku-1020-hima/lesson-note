@@ -33,13 +33,22 @@ class AuthController extends Controller
         return redirect()->intended(route('dashboard'));
     }
 
-    public function showRegister(): View
+    public function showRegister(): View|RedirectResponse
     {
+        // 公開デモでは新しい登録を受け付けず、デモ用アカウントで体験してもらう
+        if (config('demo.enabled')) {
+            return redirect()->route('login');
+        }
+
         return view('auth.register');
     }
 
     public function register(Request $request): RedirectResponse
     {
+        if (config('demo.enabled')) {
+            return redirect()->route('login');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

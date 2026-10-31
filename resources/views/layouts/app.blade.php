@@ -75,6 +75,11 @@
 @endauth
 
 <main class="max-w-6xl mx-auto px-4 py-6">
+    @if (config('demo.enabled') && auth()->check())
+        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 px-4 py-2.5 text-sm">
+            デモ版です。入力した内容は毎日{{ (int) config('demo.reset_at') }}時(日本時間)に消えて、元のデータに戻ります。本物の個人情報は入れないでください。
+        </div>
+    @endif
     @if (session('status'))
         <div class="mb-5 rounded-lg bg-leaf-50 border border-leaf-100 text-leaf-700 px-4 py-3 text-sm">{{ session('status') }}</div>
     @endif

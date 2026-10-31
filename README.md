@@ -63,6 +63,24 @@ ANTHROPIC_API_KEY=sk-ant-...
 php artisan test
 ```
 
+## 公開デモ版の設定(Laravel Cloud)
+
+環境変数で `DEMO_MODE=true` にすると、だれでも触れるデモ版として動きます。
+
+- ログイン画面にデモ用アカウントと「デモ用アカウントでログイン」ボタンが出ます
+- 新規登録とパスワード再設定は閉じます
+- メールアドレス・パスワード・アイコン画像は変更できません
+- 毎日4時(日本時間)に `php artisan demo:reset` が動き、データが初期状態に戻ります(`DEMO_MODE` が無効なときは何もしません)
+
+Laravel Cloud では次のように設定しています。
+
+| 項目 | 内容 |
+| --- | --- |
+| ビルド | `composer install --no-dev` → `npm ci --audit false` → `npm run build` → `php artisan optimize` |
+| デプロイ | `php artisan migrate --force && php artisan demo:reset --if-empty` |
+| データベース | Laravel Serverless Postgres |
+| スケジューラ | App クラスタで有効 |
+
 ## 主なファイル
 
 | 場所 | 中身 |

@@ -21,6 +21,18 @@ class SettingsController extends Controller
     {
         $user = $request->user();
 
+        // 公開デモでは、みんなが同じアカウントを使うので
+        // ログイン情報とアイコン画像(サーバーに残らない)は変えられないようにする
+        $demo = config('demo.enabled');
+        if ($demo) {
+            $request->merge(['email' => $user->email]);
+            $request->request->remove('password');
+            $request->request->remove('password_confirmation');
+            $request->request->remove('current_password');
+            $request->files->remove('logo');
+            $request->request->remove('remove_logo');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'app_name' => ['nullable', 'string', 'max:30'],
@@ -46,7 +58,7 @@ class SettingsController extends Controller
         ]);
 
         // アイコン画像:新しい画像を選んだら差し替え、「画像を外す」なら削除
-        if ($request->hasFile('logo') || $request->boolean('remove_logo')) {
+        if (! $demo && ($request->hasFile('logo') || $request->boolean('remove_logo'))) {
             if ($user->logo_path) {
                 Storage::disk('public')->delete($user->logo_path);
             }
@@ -55,7 +67,7 @@ class SettingsController extends Controller
                 : null;
         }
 
-        if (! empty($data['password'])) {
+        if (! $demo && ! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
 

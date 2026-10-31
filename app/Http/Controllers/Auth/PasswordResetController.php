@@ -18,8 +18,12 @@ use Illuminate\View\View;
  */
 class PasswordResetController extends Controller
 {
-    public function showForgot(): View
+    public function showForgot(): View|RedirectResponse
     {
+        if (config('demo.enabled')) {
+            return redirect()->route('login');
+        }
+
         return view('auth.forgot-password');
     }
 

@@ -27,6 +27,9 @@
                     <span id="logo-letter"
                           class="w-16 h-16 rounded-xl bg-leaf-500 text-white items-center justify-center text-2xl font-bold {{ $user->logo_url ? 'hidden' : 'inline-flex' }}">{{ mb_substr($user->display_app_name, 0, 1) }}</span>
                 </div>
+                @if (config('demo.enabled'))
+                <p class="text-sm text-stone-500">デモ版では画像は変えられません。名前を変えると頭文字が変わります。</p>
+                @else
                 <div class="space-y-2 text-sm">
                     <label class="inline-block rounded-lg border border-stone-300 bg-white px-4 py-2 cursor-pointer hover:bg-stone-50">
                         画像を選ぶ
@@ -39,6 +42,7 @@
                         </label>
                     @endif
                 </div>
+                @endif
             </div>
             @error('logo')
                 <span class="block text-xs text-clay-600 mt-2">{{ $message }}</span>
@@ -92,6 +96,12 @@
         </x-field>
     </section>
 
+    @if (config('demo.enabled'))
+    <section data-tour="set-login" class="bg-white rounded-xl border border-stone-200 p-6 space-y-2">
+        <h2 class="font-bold">ログイン情報</h2>
+        <p class="text-sm text-stone-500">デモ版では、みんなが同じアカウントを使うため、メールアドレスとパスワードは変えられません。</p>
+    </section>
+    @else
     <section data-tour="set-login" class="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <h2 class="font-bold">ログイン情報</h2>
         <x-field label="メールアドレス" name="email">
@@ -113,6 +123,7 @@
             </div>
         </div>
     </section>
+    @endif
 
     <button class="rounded-lg bg-leaf-500 hover:bg-leaf-600 text-white font-bold px-6 py-2.5">まとめて保存する</button>
 </form>
