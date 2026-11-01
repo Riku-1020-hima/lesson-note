@@ -229,7 +229,8 @@
         addEventListener('scroll', () => { if (! pop.classList.contains('hidden')) place(); }, { passive: true });
 
         // 自動で始めるのはホームを初めて開いたときだけ
-        if (@json($tourKey) === 'dashboard') {
+        // (公開デモ版では、機能を知ってもらうため各ページの初回にも出す)
+        if (@json($tourKey) === 'dashboard' || @json((bool) config('demo.enabled'))) {
             addEventListener('load', () => setTimeout(() => startTour(false), 300));
         }
     })();
