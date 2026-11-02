@@ -79,7 +79,7 @@
 
     <div class="flex items-center justify-between pt-2">
         <button class="rounded-lg bg-leaf-500 hover:bg-leaf-600 text-white font-bold px-5 py-2">保存する</button>
-        <a href="{{ $student->exists ? route('students.show', $student) : route('students.index') }}" class="text-sm text-stone-500">キャンセル</a>
+        <a href="{{ $student->exists ? route('students.show', $student) : route('students.index') }}" data-discard class="text-sm text-stone-500">キャンセル</a>
     </div>
 </form>
 

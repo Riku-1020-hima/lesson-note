@@ -130,6 +130,12 @@
         form.addEventListener('input', saveDraft);
         form.addEventListener('change', saveDraft);
         form.addEventListener('submit', () => { try { localStorage.removeItem(key); } catch (e) {} });
+        // 「キャンセル」(data-discard)を押したら、覚えていた入力途中の内容も捨てる
+        form.querySelectorAll('[data-discard]').forEach((el) => el.addEventListener('click', () => {
+            form.removeEventListener('input', saveDraft);
+            form.removeEventListener('change', saveDraft);
+            try { localStorage.removeItem(key); } catch (e) {}
+        }));
     });
 </script>
 
